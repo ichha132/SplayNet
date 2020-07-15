@@ -1,47 +1,32 @@
-public class SplayNet{      //<Key extends Comparable<Key>, Value> {
+public class SplayNet{
     private Node root;   // root of the BST
 
     // BST helper node data type
     private class Node {
         private int key;            // key
-      //  private Value value;        // associated data
         private Node left, right;   // left and right subtrees
 
         public Node(int key) {
             this.key   = key;
-           // this.value = value;
         }
-    }
-
-    public boolean contains(int key) {
-        return get(key) != 0;
-    }
-
-    // return value associated with the given key
-    // if no such value, return null
-    public int get(int key) {
-        root = splay(root, key);
-        int cmp = key-root.key;
-        if (cmp == 0) return root.key;
-        else          return 0;     //key should be anything but zero
     }
 
     /***************************************************************************
      *  Splay tree insertion.
+     *  => Insert a node in the tree with key ='key'
+     *  => Note: New node is always inserted at the root
+     *         : This function does nothing if key already exists
      ***************************************************************************/
-    public void put(int key) {
-        // splay key to root
-        if (root == null) {
+    public void insert(int key) {
+        if (root == null) {         //=> Tree is null
             root = new Node(key);
             return;
         }
-
+        //New node will always be inserted in the root.
         root = splay(root, key);
-
         int cmp = key-root.key;
-
         // Insert new node at root
-        if (cmp < 0) {
+        if (cmp < 0) {          //Go to left subtree
             Node n = new Node(key);
             n.left = root.left;
             n.right = root;
@@ -50,19 +35,13 @@ public class SplayNet{      //<Key extends Comparable<Key>, Value> {
         }
 
         // Insert new node at root
-        else if (cmp > 0) {
+        else if (cmp > 0) {     //Go to right subtree
             Node n = new Node(key);
             n.right = root.right;
             n.left = root;
             root.right = null;
             root = n;
         }
-
-        // It was a duplicate key. Simply replace the value
-//        else {
-//            root.value = value;
-//        }
-
     }
 
     /***************************************************************************
@@ -94,48 +73,45 @@ public class SplayNet{      //<Key extends Comparable<Key>, Value> {
                 root.right = x;
             }
         }
-
         // else: it wasn't in the tree to remove
     }
-    public void commute(int u,int v)        //Assuming u<=v
+    /***************************************************************************
+     *  SplayNet function
+     *  => This function communicates between two inputs key u and key v.
+     *  => By the end of excution of this function bith u and v are splayed to their common ancestor
+     ***************************************************************************/
+    public void commute(int u,int v)        //Assuming u amd v always exist in the tree && u<=v
     {
-//        if(this.contains(u)==false &&this.contains(v)==false)
-//            return ;
         Node nodeSet[] = findNodes( u, v) ;    //Node[0]=common_ancester; Node[1]=Node(u)
         Node common_ancester=nodeSet[0];
         Node uNode=nodeSet[1];
-        if(uNode==null)
-        {
-            return;
-        }
-        System.out.println("u="+uNode.key+" comm_anc="+ common_ancester.key);
         common_ancester=splay(common_ancester,u);
-        this.printPreorder(this.root);
+        this.printPreorder(this.root);          //Print tree in preorder fashion
         System.out.println();
         if(u==v)
             return ;
-        System.out.println("uNode.right.key="+uNode.right.key);
         uNode.right=splay(uNode.right, v);          //if v is not there, node closest to v will come to uNode
         this.printPreorder(this.root);
         System.out.println();
     }
-    public Node[] findNodes(int u,int v)
+    public Node[] findNodes(int u,int v)        // Returns an array with common ancester of u an v and Node of u
     {
         Node node=this.root;
         Node[] nodeSet=new Node[2];
+        //Property used => u<=common_ancester<=v always
         while(node !=null &&((u>node.key &&v>node.key) || (u<node.key && v<node.key)))
         {
-            if(u>node.key &&v>node.key)
+            if(u>node.key &&v>node.key)     // if current_node<u<=v ... Go right
             {
                 node=node.right;
             }
-            else if(u<node.key && v<node.key)
+            else if(u<node.key && v<node.key)//if u<=v<current_node ... Go left
             {
                 node=node.left;
             }
         }
-        nodeSet[0]=node;
-        while(node !=null &&node.key!=u)
+        nodeSet[0]=node;        //nodeSet[0]=common_ancester
+        while(node !=null &&node.key!=u)        //Finding Node(u)
         {
             if(u<node.key)
             {
@@ -146,40 +122,40 @@ public class SplayNet{      //<Key extends Comparable<Key>, Value> {
                 node=node.right;
             }
         }
-        nodeSet[1]=node;
+        nodeSet[1]=node;    //nodeSet[1]=uNode
         return nodeSet;
     }
 
 
     /***************************************************************************
      * Splay tree function.
+     * =>splay key in the tree rooted at Node h.
+     * =>If a node with that key exists, it is splayed to the root of the tree.
+     * => If it does not, the last node along the search path for the key is splayed to the root.
      * **********************************************************************/
-    // splay key in the tree rooted at Node h. If a node with that key exists,
-    //   it is splayed to the root of the tree. If it does not, the last node
-    //   along the search path for the key is splayed to the root.
     private Node splay(Node h, int key) {
-        if (h == null) return null;
+        if (h == null) return null;     //Node h does not exist
 
         int cmp1 = key-h.key;
 
         if (cmp1 < 0) {
-            // key not in tree, so we're done
             if (h.left == null) {
-                return h;
+                return h;       // key not in tree, so we're done
             }
             int cmp2 = key-h.left.key;
-            if (cmp2 < 0) {
+            if (cmp2 < 0) {     //Left-left case => 2 times right rotate
                 h.left.left = splay(h.left.left, key);
-                h = rotateRight(h);
+                h = rotateRight(h); //Right rotate
             }
-            else if (cmp2 > 0) {
+            else if (cmp2 > 0) {//Left-Right case => Right rotate then Left rotate
                 h.left.right = splay(h.left.right, key);
                 if (h.left.right != null)
-                    h.left = rotateLeft(h.left);
+                    h.left = rotateLeft(h.left); //Left rotate
             }
 
             if (h.left == null) return h;
-            else                return rotateRight(h);
+            else
+                return rotateRight(h);   //Right Rotate
         }
 
         else if (cmp1 > 0) {
@@ -189,18 +165,19 @@ public class SplayNet{      //<Key extends Comparable<Key>, Value> {
             }
 
             int cmp2 = key-h.right.key;
-            if (cmp2 < 0) {
+            if (cmp2 < 0) {             //Right-Left case
                 h.right.left  = splay(h.right.left, key);
                 if (h.right.left != null)
-                    h.right = rotateRight(h.right);
+                    h.right = rotateRight(h.right);  //Right Rotate
             }
-            else if (cmp2 > 0) {
+            else if (cmp2 > 0) {        //Right-Right case
                 h.right.right = splay(h.right.right, key);
-                h = rotateLeft(h);
+                h = rotateLeft(h);      //Left rotate
             }
 
             if (h.right == null) return h;
-            else                 return rotateLeft(h);
+            else
+                return rotateLeft(h);   //Left rotate
         }
 
         else return h;
@@ -210,23 +187,6 @@ public class SplayNet{      //<Key extends Comparable<Key>, Value> {
     /***************************************************************************
      *  Helper functions.
      ***************************************************************************/
-
-    // height of tree (1-node tree has height 0)
-    public int height() { return height(root); }
-    private int height(Node x) {
-        if (x == null) return -1;
-        return 1 + Math.max(height(x.left), height(x.right));
-    }
-
-
-    public int size() {
-        return size(root);
-    }
-
-    private int size(Node x) {
-        if (x == null) return 0;
-        else return 1 + size(x.left) + size(x.right);
-    }
 
     // right rotate
     private Node rotateRight(Node h) {
@@ -257,18 +217,14 @@ public class SplayNet{      //<Key extends Comparable<Key>, Value> {
         /* now recur on right subtree */
         printPreorder(node.right);
     }
-    //    public int compareTo(int x)
-//    {
-//        this
-//    }
     public static void main(String args[])
     {
         SplayNet sn1 = new SplayNet();
-        sn1.put(5);
-        sn1.put(9);
-        sn1.put(13);
-        sn1.put(11);
-        sn1.put(1);
+        sn1.insert(5);
+        sn1.insert(9);
+        sn1.insert(13);
+        sn1.insert(11);
+        sn1.insert(1);
         sn1.printPreorder(sn1.root);
       //  sn1.commute(5,11);
         sn1.commute(9,13);
