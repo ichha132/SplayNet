@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class SplayNet{
     private Node root;   // root of the BST
 
@@ -219,16 +221,18 @@ public class SplayNet{
     }
     public static void main(String args[])
     {
+        Scanner s=new Scanner(System.in);
+        int num_nodes=s.nextInt();      //total number of nodes
         SplayNet sn1 = new SplayNet();
-        sn1.insert(5);
-        sn1.insert(9);
-        sn1.insert(13);
-        sn1.insert(11);
-        sn1.insert(1);
+        for(int i=0;i<num_nodes;i++)
+        {
+            sn1.insert(s.nextInt());
+        }
         sn1.printPreorder(sn1.root);
-      //  sn1.commute(5,11);
-        sn1.commute(9,13);
-       // sn1.contains(13);
-       // sn1.printPreorder(sn1.root);
+        int query_num=s.nextInt();      //total number of commute queries
+        for(int i=0;i<query_num;i++)
+        {
+            sn1.commute(s.nextInt(),s.nextInt());
+        }
     }
 }
