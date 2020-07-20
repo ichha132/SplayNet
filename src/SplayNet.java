@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class SplayNet{
+public class SplayNet {
     private Node root;   // root of the BST
 
     // BST helper node data type
@@ -9,7 +9,7 @@ public class SplayNet{
         private Node left, right;   // left and right subtrees
 
         public Node(int key) {
-            this.key   = key;
+            this.key = key;
         }
     }
 
@@ -26,7 +26,7 @@ public class SplayNet{
         }
         //New node will always be inserted in the root.
         root = splay(root, key);
-        int cmp = key-root.key;
+        int cmp = key - root.key;
         // Insert new node at root
         if (cmp < 0) {          //Go to left subtree
             Node n = new Node(key);
@@ -62,13 +62,12 @@ public class SplayNet{
 
         root = splay(root, key);
 
-        int cmp = key-root.key;
+        int cmp = key - root.key;
 
         if (cmp == 0) {
             if (root.left == null) {
                 root = root.right;
-            }
-            else {
+            } else {
                 Node x = root.right;
                 root = root.left;
                 splay(root, key);
@@ -77,54 +76,51 @@ public class SplayNet{
         }
         // else: it wasn't in the tree to remove
     }
+
     /***************************************************************************
      *  SplayNet function
      *  => This function communicates between two inputs key u and key v.
      *  => By the end of excution of this function bith u and v are splayed to their common ancestor
      ***************************************************************************/
-    public void commute(int u,int v)        //Assuming u amd v always exist in the tree && u<=v
+    public void commute(int u, int v)        //Assuming u amd v always exist in the tree && u<=v
     {
-        Node nodeSet[] = findNodes( u, v) ;    //Node[0]=common_ancester; Node[1]=Node(u)
-        Node common_ancester=nodeSet[0];
-        Node uNode=nodeSet[1];
-        common_ancester=splay(common_ancester,u);
+        Node nodeSet[] = findNodes(u, v);    //Node[0]=common_ancester; Node[1]=Node(u)
+        Node common_ancester = nodeSet[0];
+        Node uNode = nodeSet[1];
+        common_ancester = splay(common_ancester, u);
         this.printPreorder(this.root);          //Print tree in preorder fashion
         System.out.println();
-        if(u==v)
-            return ;
-        uNode.right=splay(uNode.right, v);          //if v is not there, node closest to v will come to uNode
+        if (u == v)
+            return;
+        uNode.right = splay(uNode.right, v);          //if v is not there, node closest to v will come to uNode
         this.printPreorder(this.root);
         System.out.println();
     }
-    public Node[] findNodes(int u,int v)        // Returns an array with common ancester of u an v and Node of u
+
+    public Node[] findNodes(int u, int v)        // Returns an array with common ancester of u an v and Node of u
     {
-        Node node=this.root;
-        Node[] nodeSet=new Node[2];
+        Node node = this.root;
+        Node[] nodeSet = new Node[2];
         //Property used => u<=common_ancester<=v always
-        while(node !=null &&((u>node.key &&v>node.key) || (u<node.key && v<node.key)))
-        {
-            if(u>node.key &&v>node.key)     // if current_node<u<=v ... Go right
+        while (node != null && ((u > node.key && v > node.key) || (u < node.key && v < node.key))) {
+            if (u > node.key && v > node.key)     // if current_node<u<=v ... Go right
             {
-                node=node.right;
-            }
-            else if(u<node.key && v<node.key)//if u<=v<current_node ... Go left
+                node = node.right;
+            } else if (u < node.key && v < node.key)//if u<=v<current_node ... Go left
             {
-                node=node.left;
+                node = node.left;
             }
         }
-        nodeSet[0]=node;        //nodeSet[0]=common_ancester
-        while(node !=null &&node.key!=u)        //Finding Node(u)
+        nodeSet[0] = node;        //nodeSet[0]=common_ancester
+        while (node != null && node.key != u)        //Finding Node(u)
         {
-            if(u<node.key)
-            {
-                node=node.left;
-            }
-            else
-            {
-                node=node.right;
+            if (u < node.key) {
+                node = node.left;
+            } else {
+                node = node.right;
             }
         }
-        nodeSet[1]=node;    //nodeSet[1]=uNode
+        nodeSet[1] = node;    //nodeSet[1]=uNode
         return nodeSet;
     }
 
@@ -138,18 +134,17 @@ public class SplayNet{
     private Node splay(Node h, int key) {
         if (h == null) return null;     //Node h does not exist
 
-        int cmp1 = key-h.key;
+        int cmp1 = key - h.key;
 
         if (cmp1 < 0) {
             if (h.left == null) {
                 return h;       // key not in tree, so we're done
             }
-            int cmp2 = key-h.left.key;
+            int cmp2 = key - h.left.key;
             if (cmp2 < 0) {     //Left-left case => 2 times right rotate
                 h.left.left = splay(h.left.left, key);
                 h = rotateRight(h); //Right rotate
-            }
-            else if (cmp2 > 0) {//Left-Right case => Right rotate then Left rotate
+            } else if (cmp2 > 0) {//Left-Right case => Right rotate then Left rotate
                 h.left.right = splay(h.left.right, key);
                 if (h.left.right != null)
                     h.left = rotateLeft(h.left); //Left rotate
@@ -158,21 +153,18 @@ public class SplayNet{
             if (h.left == null) return h;
             else
                 return rotateRight(h);   //Right Rotate
-        }
-
-        else if (cmp1 > 0) {
+        } else if (cmp1 > 0) {
 
             if (h.right == null) {      // key not in tree, so we're done
                 return h;
             }
 
-            int cmp2 = key-h.right.key;
+            int cmp2 = key - h.right.key;
             if (cmp2 < 0) {             //Right-Left case
-                h.right.left  = splay(h.right.left, key);
+                h.right.left = splay(h.right.left, key);
                 if (h.right.left != null)
                     h.right = rotateRight(h.right);  //Right Rotate
-            }
-            else if (cmp2 > 0) {        //Right-Right case
+            } else if (cmp2 > 0) {        //Right-Right case
                 h.right.right = splay(h.right.right, key);
                 h = rotateLeft(h);      //Left rotate
             }
@@ -180,9 +172,7 @@ public class SplayNet{
             if (h.right == null) return h;
             else
                 return rotateLeft(h);   //Left rotate
-        }
-
-        else return h;
+        } else return h;
     }
 
 
@@ -205,8 +195,8 @@ public class SplayNet{
         x.left = h;
         return x;
     }
-    public void printPreorder(Node node)
-    {
+
+    public void printPreorder(Node node) {
         if (node == null)
             return;
 
@@ -219,20 +209,30 @@ public class SplayNet{
         /* now recur on right subtree */
         printPreorder(node.right);
     }
-    public static void main(String args[])
-    {
-        Scanner s=new Scanner(System.in);
-        int num_nodes=s.nextInt();      //total number of nodes
+
+    public static void main(String args[]) {
+        /* input type:-
+        line 1--> total number of nodes in the tree (say n)
+        line 2--> list of nodes ( n integer values)
+        line 3--> total number of commute (or SplayNet) queries (say m)
+        next corresponding m lines will each contain a pair of integers (between which communication will happen)
+        Eg:-
+        5
+        11 5 9 13 1
+        2
+        5 11
+        1 13
+         */
+        Scanner s = new Scanner(System.in);
+        int num_nodes = s.nextInt();      //total number of nodes
         SplayNet sn1 = new SplayNet();
-        for(int i=0;i<num_nodes;i++)
-        {
+        for (int i = 0; i < num_nodes; i++) {
             sn1.insert(s.nextInt());
         }
         sn1.printPreorder(sn1.root);
-        int query_num=s.nextInt();      //total number of commute queries
-        for(int i=0;i<query_num;i++)
-        {
-            sn1.commute(s.nextInt(),s.nextInt());
+        int query_num = s.nextInt();      //total number of commute queries
+        for (int i = 0; i < query_num; i++) {
+            sn1.commute(s.nextInt(), s.nextInt());
         }
     }
 }
