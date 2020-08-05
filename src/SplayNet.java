@@ -84,33 +84,47 @@ public class SplayNet {
      ***************************************************************************/
     public void commute(int u, int v)        //Assuming u amd v always exist in the tree && u<=v
     {
-        Node nodeSet[] = findNodes(u, v);    //Node[0]=common_ancester; Node[1]=Node(u)
+
+        Node nodeSet[] = findNodes(u, v);    //Node[0]=common_ancestor; Node[1]=Node(u); NodeSet[2]=parent of common_ancestor
         Node common_ancester = nodeSet[0];
         Node uNode = nodeSet[1];
-        common_ancester = splay(common_ancester, u);
-        this.printPreorder(this.root);          //Print tree in preorder fashion
-        System.out.println();
+        Node parent_CA=nodeSet[2];
+        if(parent_CA.key>common_ancester.key) {
+            parent_CA.left = splay(common_ancester, u);
+        }
+        else if(parent_CA.key<common_ancester.key)
+        {
+            parent_CA.right=splay(common_ancester,u);
+        }
+//        System.out.println("after splay1:");
+//        this.printPreorder(this.root);          //Print tree in preorder fashion
+//        System.out.println();
         if (u == v)
             return;
         uNode.right = splay(uNode.right, v);          //if v is not there, node closest to v will come to uNode
-        this.printPreorder(this.root);
-        System.out.println();
+//        System.out.println("after splay2:");
+//        this.printPreorder(this.root);
+//        System.out.println();
     }
 
     public Node[] findNodes(int u, int v)        // Returns an array with common ancester of u an v and Node of u
     {
         Node node = this.root;
-        Node[] nodeSet = new Node[2];
+        Node[] nodeSet = new Node[3];
+        Node parent_CA=node;
         //Property used => u<=common_ancester<=v always
         while (node != null && ((u > node.key && v > node.key) || (u < node.key && v < node.key))) {
             if (u > node.key && v > node.key)     // if current_node<u<=v ... Go right
             {
+                parent_CA=node;
                 node = node.right;
             } else if (u < node.key && v < node.key)//if u<=v<current_node ... Go left
             {
+                parent_CA=node;
                 node = node.left;
             }
         }
+        nodeSet[2]=parent_CA;
         nodeSet[0] = node;        //nodeSet[0]=common_ancester
         while (node != null && node.key != u)        //Finding Node(u)
         {
@@ -216,12 +230,17 @@ public class SplayNet {
         line 2--> list of nodes ( n integer values)
         line 3--> total number of commute (or SplayNet) queries (say m)
         next corresponding m lines will each contain a pair of integers (between which communication will happen)
-        Eg:-
+        Eg of input:-
         5
         11 5 9 13 1
         2
         5 11
         1 13
+        Corresponding output:-
+        input tree:
+        1 5 11 9 13
+        Final tree:
+        1 13 11 5 9
          */
         Scanner s = new Scanner(System.in);
         int num_nodes = s.nextInt();      //total number of nodes
@@ -229,10 +248,15 @@ public class SplayNet {
         for (int i = 0; i < num_nodes; i++) {
             sn1.insert(s.nextInt());
         }
+        System.out.println("input tree:");
         sn1.printPreorder(sn1.root);
+        System.out.println();
         int query_num = s.nextInt();      //total number of commute queries
         for (int i = 0; i < query_num; i++) {
             sn1.commute(s.nextInt(), s.nextInt());
         }
+        System.out.println("Final tree:");
+        sn1.printPreorder(sn1.root);
+        System.out.println();
     }
 }
